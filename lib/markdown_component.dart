@@ -45,10 +45,9 @@ abstract class MarkdownComponent {
     final GptMarkdownConfig config,
     bool includeGlobalComponents,
   ) {
-    var components =
-        includeGlobalComponents
-            ? config.components ?? MarkdownComponent.components
-            : config.inlineComponents ?? MarkdownComponent.inlineComponents;
+    var components = includeGlobalComponents
+        ? config.components ?? MarkdownComponent.components
+        : config.inlineComponents ?? MarkdownComponent.inlineComponents;
     List<InlineSpan> spans = [];
     Iterable<String> regexes = components.map<String>((e) => e.exp.pattern);
     final combinedRegex = RegExp(
@@ -326,12 +325,12 @@ class BlockQuote extends InlineMd {
   bool get inline => false;
   @override
   RegExp get exp =>
-  // RegExp(r"(?<=\n\n)(\ +)(.+?)(?=\n\n)", dotAll: true, multiLine: true);
-  RegExp(
-    r"(?:(?:^)\ *>[^\n]+)(?:(?:\n)\ *>[^\n]+)*",
-    dotAll: true,
-    multiLine: true,
-  );
+      // RegExp(r"(?<=\n\n)(\ +)(.+?)(?=\n\n)", dotAll: true, multiLine: true);
+      RegExp(
+        r"(?:(?:^)\ *>[^\n]+)(?:(?:\n)\ *>[^\n]+)*",
+        dotAll: true,
+        multiLine: true,
+      );
 
   @override
   InlineSpan span(
@@ -477,19 +476,17 @@ class HighlightedText extends InlineMd {
     var style =
         config.style?.copyWith(
           fontWeight: FontWeight.bold,
-          background:
-              Paint()
-                ..color = GptMarkdownTheme.of(context).highlightColor
-                ..strokeCap = StrokeCap.round
-                ..strokeJoin = StrokeJoin.round,
+          background: Paint()
+            ..color = GptMarkdownTheme.of(context).highlightColor
+            ..strokeCap = StrokeCap.round
+            ..strokeJoin = StrokeJoin.round,
         ) ??
         TextStyle(
           fontWeight: FontWeight.bold,
-          background:
-              Paint()
-                ..color = GptMarkdownTheme.of(context).highlightColor
-                ..strokeCap = StrokeCap.round
-                ..strokeJoin = StrokeJoin.round,
+          background: Paint()
+            ..color = GptMarkdownTheme.of(context).highlightColor
+            ..strokeCap = StrokeCap.round
+            ..strokeJoin = StrokeJoin.round,
         );
 
     return TextSpan(text: highlightedText, style: style);
@@ -604,45 +601,7 @@ class LatexMathMultiLine extends BlockMd {
         (BuildContext context, String tex, TextStyle textStyle, bool inline) =>
             SelectableAdapter(
               selectedText: tex,
-              child: Math.tex(
-                tex,
-                textStyle: textStyle,
-                mathStyle: MathStyle.display,
-                textScaleFactor: 1,
-                settings: const TexParserSettings(strict: Strict.ignore),
-                options: MathOptions(
-                  sizeUnderTextStyle: MathSize.large,
-                  color:
-                      config.style?.color ??
-                      Theme.of(context).colorScheme.onSurface,
-                  fontSize:
-                      config.style?.fontSize ??
-                      Theme.of(context).textTheme.bodyMedium?.fontSize,
-                  mathFontOptions: FontOptions(
-                    fontFamily: "Main",
-                    fontWeight: config.style?.fontWeight ?? FontWeight.normal,
-                    fontShape: FontStyle.normal,
-                  ),
-                  textFontOptions: FontOptions(
-                    fontFamily: "Main",
-                    fontWeight: config.style?.fontWeight ?? FontWeight.normal,
-                    fontShape: FontStyle.normal,
-                  ),
-                  style: MathStyle.display,
-                ),
-                onErrorFallback: (err) {
-                  return Text(
-                    workaround(mathText),
-                    textDirection: config.textDirection,
-                    style: textStyle.copyWith(
-                      color:
-                          (!kDebugMode)
-                              ? null
-                              : Theme.of(context).colorScheme.error,
-                    ),
-                  );
-                },
-              ),
+              child: TeX2SVG(teXInputType: TeXInputType.teX, math: tex),
             );
     return builder(
       context,
@@ -679,45 +638,7 @@ class LatexMath extends InlineMd {
         (BuildContext context, String tex, TextStyle textStyle, bool inline) =>
             SelectableAdapter(
               selectedText: tex,
-              child: Math.tex(
-                tex,
-                textStyle: textStyle,
-                mathStyle: MathStyle.display,
-                textScaleFactor: 1,
-                settings: const TexParserSettings(strict: Strict.ignore),
-                options: MathOptions(
-                  sizeUnderTextStyle: MathSize.large,
-                  color:
-                      config.style?.color ??
-                      Theme.of(context).colorScheme.onSurface,
-                  fontSize:
-                      config.style?.fontSize ??
-                      Theme.of(context).textTheme.bodyMedium?.fontSize,
-                  mathFontOptions: FontOptions(
-                    fontFamily: "Main",
-                    fontWeight: config.style?.fontWeight ?? FontWeight.normal,
-                    fontShape: FontStyle.normal,
-                  ),
-                  textFontOptions: FontOptions(
-                    fontFamily: "Main",
-                    fontWeight: config.style?.fontWeight ?? FontWeight.normal,
-                    fontShape: FontStyle.normal,
-                  ),
-                  style: MathStyle.display,
-                ),
-                onErrorFallback: (err) {
-                  return Text(
-                    workaround(mathText),
-                    textDirection: config.textDirection,
-                    style: textStyle.copyWith(
-                      color:
-                          (!kDebugMode)
-                              ? null
-                              : Theme.of(context).colorScheme.error,
-                    ),
-                  );
-                },
-              ),
+              child: TeX2SVG(teXInputType: TeXInputType.teX, math: tex),
             );
     return WidgetSpan(
       alignment: PlaceholderAlignment.baseline,
@@ -861,22 +782,22 @@ class ImageMd extends InlineMd {
         height: height,
         child: Image(
           image: NetworkImage("${match?[2]}"),
-          loadingBuilder: (
-            BuildContext context,
-            Widget child,
-            ImageChunkEvent? loadingProgress,
-          ) {
-            if (loadingProgress == null) {
-              return child;
-            }
-            return CustomImageLoading(
-              progress:
-                  loadingProgress.expectedTotalBytes != null
+          loadingBuilder:
+              (
+                BuildContext context,
+                Widget child,
+                ImageChunkEvent? loadingProgress,
+              ) {
+                if (loadingProgress == null) {
+                  return child;
+                }
+                return CustomImageLoading(
+                  progress: loadingProgress.expectedTotalBytes != null
                       ? loadingProgress.cumulativeBytesLoaded /
-                          loadingProgress.expectedTotalBytes!
+                            loadingProgress.expectedTotalBytes!
                       : 1,
-            );
-          },
+                );
+              },
           fit: BoxFit.fill,
           errorBuilder: (context, error, stackTrace) {
             return const CustomImageError();
@@ -899,19 +820,17 @@ class TableMd extends BlockMd {
     String text,
     final GptMarkdownConfig config,
   ) {
-    final List<Map<int, String>> value =
-        text
-            .split('\n')
-            .map<Map<int, String>>(
-              (e) =>
-                  e
-                      .trim()
-                      .split('|')
-                      .where((element) => element.isNotEmpty)
-                      .toList()
-                      .asMap(),
-            )
-            .toList();
+    final List<Map<int, String>> value = text
+        .split('\n')
+        .map<Map<int, String>>(
+          (e) => e
+              .trim()
+              .split('|')
+              .where((element) => element.isNotEmpty)
+              .toList()
+              .asMap(),
+        )
+        .toList();
     bool heading = RegExp(
       r"^\|.*?\|\n\|-[-\\ |]*?-\|$",
       multiLine: true,
@@ -939,48 +858,45 @@ class TableMd extends BlockMd {
             width: 1,
             color: Theme.of(context).colorScheme.onSurface,
           ),
-          children:
-              value
-                  .asMap()
-                  .entries
-                  .map<TableRow>(
-                    (entry) => TableRow(
-                      decoration:
-                          (heading)
-                              ? BoxDecoration(
-                                color:
-                                    (entry.key == 0)
-                                        ? Theme.of(
-                                          context,
-                                        ).colorScheme.surfaceContainerHighest
-                                        : null,
-                              )
+          children: value
+              .asMap()
+              .entries
+              .map<TableRow>(
+                (entry) => TableRow(
+                  decoration: (heading)
+                      ? BoxDecoration(
+                          color: (entry.key == 0)
+                              ? Theme.of(
+                                  context,
+                                ).colorScheme.surfaceContainerHighest
                               : null,
-                      children: List.generate(maxCol, (index) {
-                        var e = entry.value;
-                        String data = e[index] ?? "";
-                        if (RegExp(r"^:?--+:?$").hasMatch(data.trim()) ||
-                            data.trim().isEmpty) {
-                          return const SizedBox();
-                        }
+                        )
+                      : null,
+                  children: List.generate(maxCol, (index) {
+                    var e = entry.value;
+                    String data = e[index] ?? "";
+                    if (RegExp(r"^:?--+:?$").hasMatch(data.trim()) ||
+                        data.trim().isEmpty) {
+                      return const SizedBox();
+                    }
 
-                        return Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            child: MdWidget(
-                              (e[index] ?? "").trim(),
-                              false,
-                              config: config,
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                  )
-                  .toList(),
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        child: MdWidget(
+                          (e[index] ?? "").trim(),
+                          false,
+                          config: config,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              )
+              .toList(),
         ),
       ),
     );
